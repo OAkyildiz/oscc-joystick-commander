@@ -1,3 +1,6 @@
+ToDO: MApping file as argument
+This fork introduces the ability to add mappings thanks to [SDL_GameControllerDB](https://github.com/gabomdq/SDL_GameControllerDB)
+
 <img src="https://raw.githubusercontent.com/wiki/PolySync/OSCC/images/oscc_logo_title.png">
 
 Joystick commander is an example application designed to show how the Open Source Car Control API can be used to recieve reports from and send commands to a drive by-wire enabled vehicle.
