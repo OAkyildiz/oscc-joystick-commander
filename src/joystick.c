@@ -77,7 +77,7 @@ static int joystick_init_subsystem( )
     if ( joystick == NULL )
     {
         int init_result = SDL_Init( SDL_INIT_GAMECONTROLLER | SDL_INIT_HAPTIC );
-
+        SDL_GameControllerAddMappingsFromFile("../gamecontrollerdb.txt");
         ret = OSCC_OK;
 
         if ( init_result < 0 )
