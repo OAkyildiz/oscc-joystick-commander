@@ -433,7 +433,8 @@ static int command_steering( )
     int return_code = OSCC_ERROR;
 
     static double average = 0.0;
-
+    // TODO: Steering command mode select here witf pdf
+    
     if ( commander_enabled == COMMANDER_ENABLED && control_enabled == true )
     {
         double normalized_position = 0;
@@ -450,7 +451,8 @@ static int command_steering( )
             printf("Steering: %f\n", average);
 
             // use only 20% of allowable range for controllability
-            return_code = oscc_publish_steering_torque( average * STEERING_RANGE_PERCENTAGE );
+            return_code = oscc_publish_steering_torque( average * STEERING_RANGE_PERCENTAGE ); 
+            //this is torque helper pid function to calculate torque vballue
         }
     }
     else
@@ -528,6 +530,8 @@ static void obd_callback(struct can_frame *frame)
         kia_soul_obd_steering_wheel_angle_data_s * steering_data = (kia_soul_obd_steering_wheel_angle_data_s*) frame->data;
 
         curr_angle = steering_data->steering_wheel_angle * KIA_SOUL_OBD_STEERING_ANGLE_SCALAR;
+        printf("Steering Angle: %f\n", curr_angle);
+
     }
 }
 
