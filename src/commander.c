@@ -23,25 +23,25 @@
 
 #define CONSTRAIN(amt, low, high) ((amt) < (low) ? (low) : ((amt) > (high) ? (high) : (amt)))
 
-#define JOYSTICK_AXIS_THROTTLE (SDL_CONTROLLER_AXIS_TRIGGERRIGHT)
-#define JOYSTICK_AXIS_BRAKE (SDL_CONTROLLER_AXIS_TRIGGERLEFT)
+#define JOYSTICK_AXIS_THROTTLE (SDL_CONTROLLER_AXIS_RIGHTY) //? TRIGGERRIGHT RIGHTY
+#define JOYSTICK_AXIS_BRAKE (SDL_CONTROLLER_AXIS_RIGHTY) //? LEFTTRIGGERLEFT RIGHTY
 #define JOYSTICK_AXIS_STEER (SDL_CONTROLLER_AXIS_LEFTX)
 #define JOYSTICK_BUTTON_ENABLE_CONTROLS (SDL_CONTROLLER_BUTTON_START)
 #define JOYSTICK_BUTTON_DISABLE_CONTROLS (SDL_CONTROLLER_BUTTON_BACK)
-#define STEERING_RANGE_PERCENTAGE (0.2)
+#define STEERING_RANGE_PERCENTAGE (0.3)
 #define BRAKES_ENABLED_MIN (0.05)
 #define JOYSTICK_DELAY_INTERVAL (50000)
 #define COMMANDER_ENABLED ( 1 )
 #define COMMANDER_DISABLED ( 0 )
-#define BRAKE_FILTER_FACTOR (0.2)
-#define THROTTLE_FILTER_FACTOR (0.2)
-#define STEERING_FILTER_FACTOR (0.1)
+#define BRAKE_FILTER_FACTOR (0.5)
+#define THROTTLE_FILTER_FACTOR (0.15)
+#define STEERING_FILTER_FACTOR (0.2)
 
 static int commander_enabled = COMMANDER_DISABLED;
 
 static bool control_enabled = false;
 
-static double curr_angle;
+static double curr_angle;// I would use a shared_ptr<double> but this is C  
 
 static int get_normalized_position( unsigned long axis_index, double * const normalized_position );
 static int check_trigger_positions( );
@@ -218,6 +218,14 @@ static int get_normalized_position( unsigned long axis_index, double * const nor
                 1.0);
             }
         }
+        else if ( axis_index == JOYSTICK_AXIS_THROTTLE)
+        {
+            ( *normalized_position ) = CONSTRAIN(
+             raw_normalized_position,
+            -1.0,
+            1.0);
+        }
+        
         else
         {
             ( *normalized_position ) = CONSTRAIN(
@@ -359,10 +367,13 @@ static int command_brakes( )
                 normalized_position,
                 BRAKE_FILTER_FACTOR );
 
-            printf("Brake: %f ", average);
+            printf("Brake: %.4f  ", average);
 
             return_code = oscc_publish_brake_position( average );
         }
+        else
+            printf("Brake: %.4f  ", 0.0);
+
     }
     else
     {
@@ -373,6 +384,8 @@ static int command_brakes( )
 
     return ( return_code );
 }
+//TODO: update controller scheme
+//? one stick, use = - on axis
 
 // For the throttle command, we want to send a normalized position based on the
 // throttle position trigger. We also don't want to send throttle commands if
@@ -402,17 +415,19 @@ static int command_throttle( )
             }
         }
 
-        if ( return_code == OSCC_OK && normalized_throttle_position >= 0.0 )
+        if ( return_code == OSCC_OK && normalized_throttle_position <= 0.0 )
         {
             average = calc_exponential_average(
                 average,
-                normalized_throttle_position,
+                fabs(normalized_throttle_position),
                 THROTTLE_FILTER_FACTOR );
-
-            printf("Throttle: %f ", average);
+            //average/=2;
+            printf("Throttle: %.4f  ", average);
 
             return_code = oscc_publish_throttle_position( average );
         }
+
+
     }
     else
     {
@@ -433,8 +448,8 @@ static int command_steering( )
     int return_code = OSCC_ERROR;
 
     static double average = 0.0;
-    // TODO: Steering command mode select here witf pdf
-    
+    // TODO: Steering command mode select here witf pid
+    // 
     if ( commander_enabled == COMMANDER_ENABLED && control_enabled == true )
     {
         double normalized_position = 0;
@@ -448,12 +463,14 @@ static int command_steering( )
                 normalized_position,
                 STEERING_FILTER_FACTOR);
 
-            printf("Steering: %f\n", average);
+            printf("Steering: %.4f  ", average);
 
             // use only 20% of allowable range for controllability
             return_code = oscc_publish_steering_torque( average * STEERING_RANGE_PERCENTAGE ); 
             //this is torque helper pid function to calculate torque vballue
         }
+        printf("Steering Angle: %.4f\n", curr_angle);
+
     }
     else
     {
@@ -530,7 +547,6 @@ static void obd_callback(struct can_frame *frame)
         kia_soul_obd_steering_wheel_angle_data_s * steering_data = (kia_soul_obd_steering_wheel_angle_data_s*) frame->data;
 
         curr_angle = steering_data->steering_wheel_angle * KIA_SOUL_OBD_STEERING_ANGLE_SCALAR;
-        printf("Steering Angle: %f\n", curr_angle);
 
     }
 }
