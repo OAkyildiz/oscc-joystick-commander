@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/OAkyildiz/oscc
+	branch = master
+	commit = 09d4e536b24d7191ef14e0d2fb3454b98bea0013
+	parent = e71b06e2ec42173a3087f8ec3f973cb464dfe96f
+	method = merge
+	cmdver = 0.4.0
