@@ -33,8 +33,8 @@
 #define JOYSTICK_DELAY_INTERVAL (50000)
 #define COMMANDER_ENABLED ( 1 )
 #define COMMANDER_DISABLED ( 0 )
-#define BRAKE_FILTER_FACTOR (0.5)
-#define THROTTLE_FILTER_FACTOR (0.15)
+#define BRAKE_FILTER_FACTOR (0.4)
+#define THROTTLE_FILTER_FACTOR (0.13)
 #define STEERING_FILTER_FACTOR (0.2)
 
 static int commander_enabled = COMMANDER_DISABLED;
@@ -364,7 +364,7 @@ static int command_brakes( )
         {
             average = calc_exponential_average(
                 average,
-                normalized_position,
+                normalized_position * normalized_position * normalized_position ,
                 BRAKE_FILTER_FACTOR );
 
             printf("Brake: %.4f  ", average);
@@ -419,7 +419,7 @@ static int command_throttle( )
         {
             average = calc_exponential_average(
                 average,
-                fabs(normalized_throttle_position),
+                fabs(normalized_throttle_position * normalized_throttle_position),
                 THROTTLE_FILTER_FACTOR );
             //average/=2;
             printf("Throttle: %.4f  ", average);
