@@ -138,6 +138,19 @@ oscc_result_t oscc_publish_throttle_position( double throttle_position );
  */
 oscc_result_t oscc_publish_steering_torque( double torque );
 
+/**
+ * @brief Publish message with requested steering torque to
+ *        steering module.
+ *
+ * @param [in] angle - Normalized requested steering wheel
+ *        torque in the range [-1, 1].
+ *
+ * @return OSCC_ERROR or OSCC_OK
+ *
+ */
+oscc_result_t oscc_publish_steering_angle( double angle );
+
+
 
 /**
  * @brief Register callback function to be called when brake report

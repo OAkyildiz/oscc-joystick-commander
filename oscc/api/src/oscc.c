@@ -256,6 +256,30 @@ oscc_result_t oscc_publish_steering_torque( double torque )
     return result;
 }
 
+
+oscc_result_t oscc_publish_steering_angle( double angle )
+{
+    oscc_result_t result = OSCC_ERROR;
+
+
+    oscc_steering_command_s steering_cmd =
+    {
+        .magic[0] = ( uint8_t ) OSCC_MAGIC_BYTE_0,
+        .magic[1] = ( uint8_t ) OSCC_MAGIC_BYTE_1
+    };
+
+    steering_cmd.torque_command = (float) torque;
+
+    result = oscc_can_write(
+        OSCC_STEERING_ANGLE_COMMAND_CAN_ID,
+        (void *) &steering_cmd,
+        sizeof(steering_cmd) );
+
+
+    return result;
+}
+
+
 oscc_result_t oscc_subscribe_to_brake_reports( void (*callback)(oscc_brake_report_s *report) )
 {
     oscc_result_t result = OSCC_ERROR;
