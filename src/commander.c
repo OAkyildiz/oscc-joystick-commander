@@ -364,9 +364,13 @@ static int command_brakes( )
         {
             average = calc_exponential_average(
                 average,
-                normalized_position * normalized_position * normalized_position ,
+                normalized_position * normalized_position * normalized_position/2 ,
                 BRAKE_FILTER_FACTOR );
-
+        if ( normalized_position >= 0.95 )//?
+            {
+                normalized_position = 0.9;
+            }
+        
             printf("Brake: %.4f  ", average);
 
             return_code = oscc_publish_brake_position( average );
